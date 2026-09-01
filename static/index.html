@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111318">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CEC Remote">
+  <link rel="manifest" href="/static/manifest.webmanifest">
+  <link rel="icon" href="/static/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+  <title>Projector Remote</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+      background: #0b0c0f;
+      color: #f5f5f5;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100dvh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at 50% 0%, #242834 0, transparent 45%),
+        #0b0c0f;
+    }
+
+    .remote {
+      width: min(100%, 380px);
+      padding: 28px;
+      border: 1px solid #30333b;
+      border-radius: 32px;
+      background: linear-gradient(145deg, #1b1e24, #121419);
+      box-shadow: 0 28px 70px #000a, inset 0 1px #ffffff12;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 34px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 650;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    #status {
+      min-height: 1.3em;
+      font-size: .78rem;
+      color: #959aa7;
+      text-align: right;
+    }
+
+    .power-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 44px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid #3a3e48;
+      color: inherit;
+      background: linear-gradient(145deg, #292d35, #1b1e24);
+      box-shadow: 0 8px 16px #0006, inset 0 1px #ffffff14;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 80ms ease, border-color 120ms ease, filter 120ms ease;
+    }
+
+    button:hover { border-color: #606674; }
+    button:active { transform: translateY(2px) scale(.98); }
+    button:focus-visible { outline: 3px solid #75a7ff; outline-offset: 3px; }
+    button:disabled { cursor: wait; filter: saturate(.3); opacity: .65; }
+
+    .power {
+      min-height: 62px;
+      border-radius: 18px;
+      font-size: .9rem;
+      font-weight: 650;
+    }
+
+    .power.on { color: #8df0ae; }
+    .power.off { color: #ff8d8d; }
+
+    .volume {
+      display: grid;
+      justify-items: center;
+      gap: 16px;
+    }
+
+    .volume-label {
+      color: #959aa7;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    .volume button {
+      width: 116px;
+      height: 92px;
+      border-radius: 28px;
+      font-size: 2.2rem;
+      font-weight: 300;
+      line-height: 1;
+    }
+
+    .volume button:first-of-type {
+      border-radius: 58px 58px 25px 25px;
+    }
+
+    .volume button:last-of-type {
+      border-radius: 25px 25px 58px 58px;
+    }
+
+    @media (max-height: 600px) {
+      .remote { padding: 22px; }
+      header, .power-grid { margin-bottom: 22px; }
+      .volume button { height: 72px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="remote" aria-label="CEC television remote">
+    <header>
+      <h1>Projector</h1>
+      <div id="status" role="status" aria-live="polite">Ready</div>
+    </header>
+
+    <section class="power-grid" aria-label="Power controls">
+      <button class="power on" data-endpoint="/power/on">Power on</button>
+      <button class="power off" data-endpoint="/power/off">Power off</button>
+    </section>
+
+    <section class="volume" aria-label="Volume controls">
+      <span class="volume-label">Volume</span>
+      <button data-endpoint="/volume/up" aria-label="Volume up">+</button>
+      <button data-endpoint="/volume/down" aria-label="Volume down">-</button>
+    </section>
+  </main>
+
+  <script>
+    const statusElement = document.querySelector("#status");
+    const buttons = document.querySelectorAll("button[data-endpoint]");
+    let statusTimer;
+
+    async function sendCommand(button) {
+      clearTimeout(statusTimer);
+      button.disabled = true;
+      statusElement.textContent = "Sending...";
+
+      try {
+        const response = await fetch(button.dataset.endpoint, { method: "POST" });
+        const body = await response.json();
+        if (!response.ok) throw new Error(body.detail || "Request failed");
+        statusElement.textContent = `${body.command} queued`;
+      } catch (error) {
+        statusElement.textContent = error.message || "Connection failed";
+      } finally {
+        button.disabled = false;
+        statusTimer = setTimeout(() => { statusElement.textContent = "Ready"; }, 2500);
+      }
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => sendCommand(button));
+    });
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/service-worker.js").catch(() => {
+          statusElement.textContent = "Offline support unavailable";
+        });
+      });
+    }
+  </script>
+</body>
+</html>
