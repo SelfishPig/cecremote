@@ -1,0 +1,32 @@
+{
+  "name": "CEC Remote Green",
+  "short_name": "Remote",
+  "description": "A simple HDMI-CEC television remote control",
+  "id": "/?theme=green",
+  "start_url": "/?theme=green",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#10140d",
+  "theme_color": "#28301c",
+  "icons": [
+    {
+      "src": "/static/icons/icon-green-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-green-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-green-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

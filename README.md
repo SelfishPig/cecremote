@@ -37,6 +37,10 @@ require a secure context: `localhost` works for local development, while access
 from another device normally needs HTTPS. The service worker caches only the
 app shell; control commands are always sent to the API and are never cached.
 
+The original grey theme is used by default. Open `/?theme=green` to use or
+install the olive-green variant; its browser theme, manifest, and app icons are
+selected along with the interface colors.
+
 ## systemd service
 
 The included unit is a template whose instance name is the Linux user running
@@ -102,11 +106,25 @@ the subprocess.
 
 ## Configuration
 
+Source buttons are configured in `sources.json`. Each key is a CEC physical
+address and each value is the button label; entries are displayed in file order:
+
+```json
+{
+  "1.0.0.0": "HDMI 1",
+  "2.0.0.0": "Game console"
+}
+```
+
+Edit this file to match the devices connected to your display. Set
+`CEC_SOURCES_FILE` to use a configuration file in another location.
+
 Environment variables:
 
 - `CEC_CLIENT`: executable path (default: `cec-client`)
 - `CEC_DEVICE_TYPE`: value passed to `cec-client -t` (default: `p`, playback)
 - `CEC_RESTART_DELAY`: seconds between start/send retries (default: `2`)
+- `CEC_SOURCES_FILE`: source-name JSON file (default: `sources.json` beside `main.py`)
 - `LOG_LEVEL`: Python log level (default: `INFO`)
 
 For LAN use, put the API behind firewall rules or an authenticated reverse

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import queue
@@ -173,6 +174,11 @@ class QueueResponse(BaseModel):
     queue_depth: int
 
 
+class SourceOption(BaseModel):
+    physical_address: str
+    name: str
+
+
 worker = CecWorker()
 
 
@@ -188,6 +194,9 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
 app = FastAPI(title="CEC Remote API", version="1.0.0", lifespan=lifespan)
 STATIC_PATH = Path(__file__).parent / "static"
 INDEX_PATH = STATIC_PATH / "index.html"
+SOURCES_PATH = Path(
+    os.getenv("CEC_SOURCES_FILE", Path(__file__).parent / "sources.json")
+)
 app.mount("/static", StaticFiles(directory=STATIC_PATH), name="static")
 
 
@@ -216,6 +225,41 @@ def service_worker() -> FileResponse:
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/sources", response_model=list[SourceOption])
+def sources() -> list[SourceOption]:
+    try:
+        configured_sources = json.loads(SOURCES_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        logger.error("Unable to read source configuration %s: %s", SOURCES_PATH, exc)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Source configuration could not be loaded",
+        ) from exc
+
+    if not isinstance(configured_sources, dict):
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Source configuration must be an address-to-name object",
+        )
+
+    result: list[SourceOption] = []
+    try:
+        for address, name in configured_sources.items():
+            source = SourceRequest(physical_address=address)
+            if not isinstance(name, str) or not name.strip():
+                raise ValueError(f"source {address} must have a non-empty name")
+            result.append(
+                SourceOption(physical_address=source.physical_address, name=name.strip())
+            )
+    except (TypeError, ValueError) as exc:
+        logger.error("Invalid source configuration %s: %s", SOURCES_PATH, exc)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Source configuration is invalid",
+        ) from exc
+    return result
 
 
 @app.post("/power/on", response_model=QueueResponse, status_code=202)

@@ -1,12 +1,18 @@
-const CACHE_NAME = "cec-remote-v1";
+const CACHE_NAME = "cec-remote-v4";
 const APP_SHELL = [
   "/",
   "/static/manifest.webmanifest",
+  "/static/manifest-green.webmanifest",
   "/static/icons/icon.svg",
+  "/static/icons/icon-green.svg",
   "/static/icons/icon-192.png",
   "/static/icons/icon-512.png",
   "/static/icons/icon-maskable-512.png",
-  "/static/icons/apple-touch-icon.png"
+  "/static/icons/apple-touch-icon.png",
+  "/static/icons/icon-green-192.png",
+  "/static/icons/icon-green-512.png",
+  "/static/icons/icon-green-maskable-512.png",
+  "/static/icons/apple-touch-icon-green.png"
 ];
 
 self.addEventListener("install", (event) => {
