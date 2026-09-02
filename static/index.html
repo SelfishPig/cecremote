@@ -37,6 +37,7 @@
       --button-hover: #606674;
       --button-start: #292d35;
       --button-end: #1b1e24;
+      --button-glyph: #0d0f13;
       --focus: #75a7ff;
       --power-on: #8df0ae;
       --power-off: #ff8d8d;
@@ -55,9 +56,10 @@
       --button-hover: #708238;
       --button-start: #3b482d;
       --button-end: #252d1d;
+      --button-glyph: #161b11;
       --focus: #aabd69;
-      --power-on: #bfd77a;
-      --power-off: #d6b77a;
+      --power-on: #caff5a;
+      --power-off: #ffb84d;
     }
 
     * { box-sizing: border-box; }
@@ -130,8 +132,19 @@
     .power {
       min-height: 62px;
       border-radius: 18px;
-      font-size: .9rem;
       font-weight: 650;
+      line-height: 1;
+    }
+
+    .power svg {
+      display: block;
+      width: 28px;
+      height: 28px;
+      margin: auto;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.4;
+      stroke-linecap: round;
     }
 
     .power.on { color: var(--power-on); }
@@ -155,9 +168,11 @@
       width: 116px;
       height: 92px;
       border-radius: 28px;
-      font-size: 2.2rem;
-      font-weight: 300;
+      font-size: 3rem;
+      font-weight: 500;
       line-height: 1;
+      color: var(--button-glyph);
+      text-shadow: 0 1px 1px #ffffff30, 0 -1px 1px #000d;
     }
 
     .volume button:first-of-type {
@@ -207,8 +222,16 @@
     </header>
 
     <section class="power-grid" aria-label="Power controls">
-      <button class="power on" data-endpoint="/power/on">Power on</button>
-      <button class="power off" data-endpoint="/power/off">Power off</button>
+      <button class="power on" data-endpoint="/power/on" aria-label="Power on">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 5v14" />
+        </svg>
+      </button>
+      <button class="power off" data-endpoint="/power/off" aria-label="Power off">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="7" />
+        </svg>
+      </button>
     </section>
 
     <section class="volume" aria-label="Volume controls">
@@ -217,8 +240,7 @@
       <button data-endpoint="/volume/down" aria-label="Volume down">-</button>
     </section>
 
-    <section class="sources" aria-labelledby="sources-label">
-      <span class="volume-label" id="sources-label">Sources</span>
+    <section class="sources" aria-label="Sources">
       <div class="source-list" id="source-list"></div>
     </section>
   </main>
@@ -242,7 +264,7 @@
         const response = await fetch(button.dataset.endpoint, options);
         const body = await response.json();
         if (!response.ok) throw new Error(body.detail || "Request failed");
-        statusElement.textContent = `${body.command} queued`;
+        statusElement.textContent = body.command;
       } catch (error) {
         statusElement.textContent = error.message || "Connection failed";
       } finally {

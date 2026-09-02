@@ -285,4 +285,12 @@ def volume_down() -> QueueResponse:
 @app.post("/source", response_model=QueueResponse, status_code=202)
 def select_source(source: SourceRequest) -> QueueResponse:
     command = f"tx 0F:86:{source.as_bytes()}"
-    return queue_command(command, f"select source {source.physical_address}")
+    source_name = next(
+        (
+            option.name
+            for option in sources()
+            if option.physical_address == source.physical_address
+        ),
+        source.physical_address,
+    )
+    return queue_command(command, f"select source {source_name}")
