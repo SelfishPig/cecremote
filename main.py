@@ -264,27 +264,17 @@ def sources() -> list[SourceOption]:
 
 @app.post("/power/on", response_model=QueueResponse, status_code=202)
 def power_on() -> QueueResponse:
-    return queue_command("on 0", "power on")
+    return queue_command("tx 10:44:6D\ntx 10:45", "power on")
 
 
 @app.post("/power/off", response_model=QueueResponse, status_code=202)
 def power_off() -> QueueResponse:
-    return queue_command("standby 0", "power off")
-
-
-@app.post("/volume/up", response_model=QueueResponse, status_code=202)
-def volume_up() -> QueueResponse:
-    return queue_command("volup", "volume up")
-
-
-@app.post("/volume/down", response_model=QueueResponse, status_code=202)
-def volume_down() -> QueueResponse:
-    return queue_command("voldown", "volume down")
+    return queue_command("tx 10:44:6C\ntx 10:45", "power off")
 
 
 @app.post("/source", response_model=QueueResponse, status_code=202)
 def select_source(source: SourceRequest) -> QueueResponse:
-    command = f"tx 0F:86:{source.as_bytes()}"
+    command = f"tx 1f:82:{source.as_bytes()}"
     source_name = next(
         (
             option.name

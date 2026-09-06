@@ -1,4 +1,4 @@
-const CACHE_NAME = "cec-remote-v4";
+const CACHE_NAME = "cec-remote-v5";
 const APP_SHELL = [
   "/",
   "/static/manifest.webmanifest",

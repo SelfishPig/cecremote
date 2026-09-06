@@ -87,17 +87,19 @@ with `ls -l /dev/cec*` if `cec-client` cannot open the device.
 ```sh
 curl -X POST http://localhost:8000/power/on
 curl -X POST http://localhost:8000/power/off
-curl -X POST http://localhost:8000/volume/up
-curl -X POST http://localhost:8000/volume/down
 curl -X POST http://localhost:8000/source \
   -H 'Content-Type: application/json' \
   -d '{"physical_address":"2.0.0.0"}'
 ```
 
-The source endpoint takes a CEC physical address, not a logical address. Common
-direct TV inputs are `1.0.0.0`, `2.0.0.0`, and so on. Devices connected through
-an AVR or switch can have addresses such as `2.1.0.0`. Source switching varies
-somewhat by TV manufacturer and may require enabling HDMI-CEC in the TV menu.
+Power commands send CEC user-control press/release messages directly from
+logical address 1 to the display at logical address 0.
+
+The source endpoint takes a CEC physical address, not a logical address. It
+broadcasts an Active Source (`1f:82`) message, so `1.0.0.0` and `2.0.0.0` send
+`1f:82:10:00` and `1f:82:20:00`, respectively. Devices connected through an AVR
+or switch can have addresses such as `2.1.0.0`. Source switching varies somewhat
+by TV manufacturer and may require enabling HDMI-CEC in the TV menu.
 
 Every successful command request returns HTTP 202 because it has been queued,
 not necessarily completed by the television. If `cec-client` exits or is not

@@ -37,7 +37,6 @@
       --button-hover: #606674;
       --button-start: #292d35;
       --button-end: #1b1e24;
-      --button-glyph: #0d0f13;
       --focus: #75a7ff;
       --power-on: #8df0ae;
       --power-off: #ff8d8d;
@@ -56,7 +55,6 @@
       --button-hover: #708238;
       --button-start: #3b482d;
       --button-end: #252d1d;
-      --button-glyph: #161b11;
       --focus: #aabd69;
       --power-on: #caff5a;
       --power-off: #ffb84d;
@@ -110,7 +108,6 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-      margin-bottom: 44px;
     }
 
     button {
@@ -150,39 +147,6 @@
     .power.on { color: var(--power-on); }
     .power.off { color: var(--power-off); }
 
-    .volume {
-      display: grid;
-      justify-items: center;
-      gap: 16px;
-    }
-
-    .volume-label {
-      color: var(--muted);
-      font-size: .78rem;
-      font-weight: 700;
-      letter-spacing: .16em;
-      text-transform: uppercase;
-    }
-
-    .volume button {
-      width: 116px;
-      height: 92px;
-      border-radius: 28px;
-      font-size: 3rem;
-      font-weight: 500;
-      line-height: 1;
-      color: var(--button-glyph);
-      text-shadow: 0 1px 1px #ffffff30, 0 -1px 1px #000d;
-    }
-
-    .volume button:first-of-type {
-      border-radius: 58px 58px 25px 25px;
-    }
-
-    .volume button:last-of-type {
-      border-radius: 25px 25px 58px 58px;
-    }
-
     .sources {
       margin-top: 36px;
     }
@@ -209,8 +173,7 @@
 
     @media (max-height: 600px) {
       .remote { padding: 22px; }
-      header, .power-grid { margin-bottom: 22px; }
-      .volume button { height: 72px; }
+      header { margin-bottom: 22px; }
     }
   </style>
 </head>
@@ -232,12 +195,6 @@
           <circle cx="12" cy="12" r="7" />
         </svg>
       </button>
-    </section>
-
-    <section class="volume" aria-label="Volume controls">
-      <span class="volume-label">Volume</span>
-      <button data-endpoint="/volume/up" aria-label="Volume up">+</button>
-      <button data-endpoint="/volume/down" aria-label="Volume down">-</button>
     </section>
 
     <section class="sources" aria-label="Sources">
